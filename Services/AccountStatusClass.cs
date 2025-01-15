@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.DirectoryServices.AccountManagement;
 using System.Net.Sockets;
+using System.IO;
+using System.Text.Json;
 
 namespace ggy_app_service_account_report.Services
 {
@@ -21,7 +23,9 @@ namespace ggy_app_service_account_report.Services
                         {
                             DisplayName = userPrincipal.DisplayName,
                             LockedOut = userPrincipal.IsAccountLockedOut(),
-                            LastLogon = userPrincipal.LastLogon
+                            LastLogon = userPrincipal.LastLogon,
+                            AccountLockoutTime = userPrincipal.AccountLockoutTime,
+
                         });
                     }
                 }
@@ -57,6 +61,7 @@ namespace ggy_app_service_account_report.Services
         public string DisplayName { get; set; }
         public bool LockedOut { get; set; }
         public DateTime? LastLogon { get; set; }
+        public DateTime? AccountLockoutTime { get; set;}
     }
 
     public class SessionInfo
@@ -65,4 +70,24 @@ namespace ggy_app_service_account_report.Services
         public string SessionName { get; set; }
         public DateTime LogonTime { get; set; }
     }
+    public class Configuration
+{
+    public List<string> Users { get; set; }
+    public List<string> Servers { get; set; }
+}
+    public class ConfigurationService
+{
+    private readonly string _configFilePath;
+
+    public ConfigurationService(string configFilePath)
+    {
+        _configFilePath = configFilePath;
+    }
+
+    public Configuration GetConfiguration()
+    {
+        var jsonString = File.ReadAllText(_configFilePath);
+        return JsonSerializer.Deserialize<Configuration>(jsonString);
+    }
+}
 }

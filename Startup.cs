@@ -20,6 +20,7 @@ namespace AccountStatusReport
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
+            services.AddSingleton(new ConfigurationService("list.json"));
             services.AddSingleton<AccountStatusService>();
         }
 
