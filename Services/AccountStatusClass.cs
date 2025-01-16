@@ -47,13 +47,6 @@ namespace ggy_app_service_account_report.Services
                 return false;
             }
         }
-
-        public List<SessionInfo> GetLoggedInUsers(string server)
-        {
-            var sessions = new List<SessionInfo>();
-            // Implement logic to get logged-in users, e.g., using WMI or other methods
-            return sessions;
-        }
     }
 
     public class UserStatus
@@ -69,10 +62,12 @@ namespace ggy_app_service_account_report.Services
         public string UserName { get; set; }
         public string SessionName { get; set; }
         public DateTime LogonTime { get; set; }
+        public string State { get; set; }
+        public string IdleTime { get; set; }
     }
     public class Configuration
 {
-    public List<string> Users { get; set; }
+    public Dictionary<string, List<string>> UserGroups { get; set; }
     public List<string> Servers { get; set; }
 }
     public class ConfigurationService
