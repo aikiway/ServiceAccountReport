@@ -21,7 +21,7 @@ namespace AccountStatusReport
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
-            services.AddSingleton(new ConfigurationService("list.json"));
+            services.AddSingleton(new ConfigurationService("wwwroot/list.json"));
             services.AddSingleton<AccountStatusService>();
             services.AddScoped<ServerUserService>(); // Register the new service
         }
@@ -40,6 +40,7 @@ namespace AccountStatusReport
             }
 
             app.UseHttpsRedirection();
+            app.UseDefaultFiles(); // Serve the default file (index.html)
             app.UseStaticFiles();
 
             app.UseRouting();
@@ -53,9 +54,6 @@ namespace AccountStatusReport
                     pattern: "{controller=Home}/{action=Index}/{id?}");
                 endpoints.MapControllers();
             });
-            // Serve the default file (index.html)
-            app.UseDefaultFiles();
-            app.UseStaticFiles();
         }
     }
 }

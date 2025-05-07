@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update List</title>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+            overflow: hidden;
+        }
+        header {
+            background: #333;
+            color: #fff;
+            padding-top: 30px;
+            min-height: 70px;
+            border-bottom: #77aaff 3px solid;
+        }
+        header a {
+            color: #fff;
+            text-decoration: none;
+            text-transform: uppercase;
+            font-size: 16px;
+        }
+        header ul {
+            padding: 0;
+            list-style: none;
+        }
+        header li {
+            float: left;
+            display: inline;
+            padding: 0 20px 0 20px;
+        }
+        header #branding {
+            float: left;
+        }
+        header #branding h1 {
+            margin: 0;
+        }
+        header nav {
+            float: right;
+            margin-top: 10px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        .button {
+            display: inline-block;
+            color: #fff;
+            background: #77aaff;
+            padding: 10px 20px;
+            text-decoration: none;
+            font-size: 18px;
+            border-radius: 5px;
+            margin: 10px 0;
+            cursor: pointer;
+        }
+        footer {
+            padding: 20px;
+            margin-top: 20px;
+            color: #fff;
+            background-color: #333;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div id="branding">
+                <h1>Update List</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="#">About</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <section class="container">
+        <h1>Update User and Server List</h1>
+        <div id="addSection">
+            <h2>Add Item</h2>
+            <form id="addForm">
+                <div class="form-group">
+                    <label for="addType">Type</label>
+                    <select id="addType" name="type" onchange="toggleUserGroupDropdown()">
+                        <option value="user">User</option>
+                        <option value="userGroup">User Group</option>
+                        <option value="server">Server</option>
+                    </select>
+                </div>
+                <div class="form-group" id="userGroupDropdown" style="display: none;">
+                    <label for="userGroup">User Group</label>
+                    <select id="userGroup" name="userGroup">
+                        <!-- Options will be populated dynamically -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="addName">Name</label>
+                    <input type="text" id="addName" name="name" required>
+                </div>
+                <div class="form-group">
+                    <button type="button" class="button" onclick="addItem()">Add</button>
+                </div>
+            </form>
+        </div>
+
+        <div id="removeSection">
+            <h2>Remove Item</h2>
+            <form id="removeForm">
+                <div class="form-group">
+                    <label for="removeType">Type</label>
+                    <select id="removeType" name="type" onchange="populateRemoveDropdown()">
+                        <option value="user">User</option>
+                        <option value="userGroup">User Group</option>
+                        <option value="server">Server</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="removeName">Name</label>
+                    <select id="removeName" name="name">
+                        <!-- Options will be populated dynamically -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <button type="button" class="button" onclick="removeItem()">Remove</button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <footer>
+        <p>Update List &copy; 2025</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            populateUserGroupDropdown();
+            populateRemoveDropdown();
+        });
+
+        function toggleUserGroupDropdown() {
+            const type = document.getElementById('addType').value;
+            const userGroupDropdown = document.getElementById('userGroupDropdown');
+            if (type === 'user') {
+                userGroupDropdown.style.display = 'block';
+            } else {
+                userGroupDropdown.style.display = 'none';
+            }
+        }
+
+        function populateUserGroupDropdown() {
+            fetch('/Report/userGroups')
+                .then(response => response.json())
+                .then(data => {
+                    const userGroupDropdown = document.getElementById('userGroup');
+                    userGroupDropdown.innerHTML = '';
+                    for (const group in data.userGroups) {
+                        const option = document.createElement('option');
+                        option.value = group;
+                        option.textContent = group;
+                        userGroupDropdown.appendChild(option);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        function populateRemoveDropdown() {
+            const type = document.getElementById('removeType').value;
+            console.log('Selected type:', type); // Log the selected type
+            fetch(`/Report/${type}s`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Data received:', data); // Log the received data
+                    const removeDropdown = document.getElementById('removeName');
+                    removeDropdown.innerHTML = '';
+                    if (type === 'user') {
+                        // Populate with all unique users
+                        const uniqueUsers = new Set(data.items);
+                        uniqueUsers.forEach(user => {
+                            const option = document.createElement('option');
+                            option.value = user;
+                            option.textContent = user;
+                            removeDropdown.appendChild(option);
+                        });
+                    } else if (type === 'userGroup') {
+                        data.items.forEach(group => {
+                            const option = document.createElement('option');
+                            option.value = group;
+                            option.textContent = group;
+                            removeDropdown.appendChild(option);
+                        });
+                    } else {
+                        data.items.forEach(item => {
+                            const option = document.createElement('option');
+                            option.value = item;
+                            option.textContent = item;
+                            removeDropdown.appendChild(option);
+                        });
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        function addItem() {
+            const type = document.getElementById('addType').value;
+            const name = document.getElementById('addName').value;
+            const userGroup = type === 'user' ? document.getElementById('userGroup').value : null;
+            fetch('/Report/AddItem', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ type, name, userGroup })
+            }).then(response => response.json())
+            .then(data => {
+                console.log('Response:', data);
+                alert(data.message);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while adding the item.');
+            });
+        }
+
+        function removeItem() {
+            const type = document.getElementById('removeType').value;
+            const name = document.getElementById('removeName').value;
+
+            fetch('/Report/RemoveItem', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ type, name })
+            }).then(response => response.json())
+            .then(data => alert(data.message))
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>

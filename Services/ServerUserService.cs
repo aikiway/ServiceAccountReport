@@ -52,8 +52,8 @@ namespace AccountStatusClass.Services
                     if (parts.Length >= 7)
                     {
                         string userName = parts[0];
-                        Console.WriteLine($"Username: {userName}");
-                        Console.WriteLine($"Interested Users: {string.Join(", ", interestedUsers)}");
+                        //Console.WriteLine($"Username: {userName}");
+                        //Console.WriteLine($"Interested Users: {string.Join(", ", interestedUsers)}");
                         if (interestedUsers.Any(u => u.Equals(userName, StringComparison.OrdinalIgnoreCase)))
                         {
                             if (parts[3] == "Active")
